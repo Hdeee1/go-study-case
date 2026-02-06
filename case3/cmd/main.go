@@ -29,8 +29,8 @@ func serveWs(hub *ws.Hub, w http.ResponseWriter, r *http.Request) {
 		Send: make(chan []byte, 256),
 	}
 	
-	client.WritePump()
-	client.ReadPump()
+	go client.WritePump()
+	go client.ReadPump()
 }
 
 func main() {
@@ -39,6 +39,10 @@ func main() {
 	go hub.Run()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(hub, w, r)
+	})
+	
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "web/index.html")
 	})
 
